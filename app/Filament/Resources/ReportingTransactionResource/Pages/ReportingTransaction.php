@@ -52,11 +52,6 @@ class ReportingTransaction extends Page
             ->statePath('data');
     }
 
-    public function submit()
-    {
-        // SAVE THE SETTINGS HERE
-    }
-
     public function export()
     {
         $this->validate();

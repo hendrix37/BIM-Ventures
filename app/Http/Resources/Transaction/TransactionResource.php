@@ -12,6 +12,7 @@ class TransactionResource extends JsonResource
             'id' => $this->id,
             'uuid' => $this->uuid,
 			'payer_id' => $this->payer_id,
+			'payer_name' => $this->payer,
 			'amount' => $this->amount,
 			'due_date' => dateTimeFormat($this->due_date),
 			'vat' => $this->vat,
