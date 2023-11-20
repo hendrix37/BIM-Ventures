@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Enums\StatusType;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class TransactionFactory extends Factory
@@ -16,6 +17,7 @@ class TransactionFactory extends Factory
             'vat' => $this->faker->randomFloat(),
             'is_vat' => $this->faker->boolean(),
             'status' => $this->faker->randomElement(StatusType::getAll()),
+            'created_at' => Carbon::now()->addMonths($this->faker->numberBetween(1, 12))->addYears($this->faker->numberBetween(1, 5)),
         ];
     }
 }

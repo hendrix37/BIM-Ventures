@@ -23,6 +23,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 =============================*/
 
 Route::apiResource('/transactions', \App\Http\Controllers\API\TransactionController::class);
+Route::get('/list-transaction-by-mount', [\App\Http\Controllers\API\TransactionController::class, 'list_transaction_by_mount']);
 
 /*=====  End of transactions   ======*/
 

@@ -7,6 +7,7 @@ use App\Http\Requests\Transaction\CreateTransactionRequest;
 use App\Http\Requests\Transaction\UpdateTransactionRequest;
 use App\Http\Resources\Transaction\TransactionResource;
 use App\Models\Transaction;
+use DB;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Request;
@@ -15,10 +16,9 @@ class TransactionController extends Controller
 {
     public function __construct()
     {
-
     }
 
-    public function index(): AnonymousResourceCollection 
+    public function index(): AnonymousResourceCollection
     {
         $transactions = Transaction::useFilters()->dynamicPaginate();
 
@@ -51,4 +51,31 @@ class TransactionController extends Controller
         return $this->responseDeleted();
     }
 
+    public function list_transaction_by_mount(): JsonResponse
+    {
+        // $transactions = Transaction::select(
+        //     DB::raw('YEAR(created_at) as year'),
+        //     DB::raw('MONTH(created_at) as month'),
+        //     DB::raw('COUNT(*) as transaction_count')
+        // )
+        // ->groupBy(DB::raw('YEAR(created_at)'), DB::raw('MONTH(created_at)'))
+        // ->orderBy(DB::raw('YEAR(created_at)'), 'asc')
+        // ->orderBy(DB::raw('MONTH(created_at)'), 'asc')
+        // ->get();
+
+        $transactions = Transaction::select(
+            DB::raw('YEAR(created_at) as year'),
+            DB::raw('MONTH(created_at) as month'),
+            DB::raw('COUNT(CASE WHEN status = "paid" THEN amount ELSE 0 END) as paid'),
+            DB::raw('COUNT(CASE WHEN status = "outstanding" THEN amount ELSE 0 END) as outstanding'),
+            DB::raw('COUNT(CASE WHEN status = "overdue" THEN amount ELSE 0 END) as overdue')
+        )
+            ->groupBy(DB::raw('YEAR(created_at)'), DB::raw('MONTH(created_at)'))
+            ->orderBy(DB::raw('YEAR(created_at)'), 'asc')
+            ->orderBy(DB::raw('MONTH(created_at)'), 'asc')
+            ->get();
+
+
+        return $this->responseSuccess('Success', $transactions);
+    }
 }
