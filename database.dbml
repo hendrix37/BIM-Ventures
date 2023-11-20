@@ -1,0 +1,129 @@
+Project BIM_Ventures {
+  database_type: 'mysql'
+  Note: "BIM Ventures Test Database"
+}
+
+Enum "transactions_status_enum" {
+  "Paid"
+  "Outstanding"
+  "Overdue"
+}
+
+Table "failed_jobs" {
+  "id" bigint [pk, not null, increment]
+  "uuid" varchar(255) [not null]
+  "connection" text [not null]
+  "queue" text [not null]
+  "payload" longtext [not null]
+  "exception" longtext [not null]
+  "failed_at" timestamp [not null, default: `CURRENT_TIMESTAMP`]
+
+Indexes {
+  uuid [unique, name: "failed_jobs_uuid_unique"]
+}
+}
+
+Table "migrations" {
+  "id" int [pk, not null, increment]
+  "migration" varchar(255) [not null]
+  "batch" int [not null]
+}
+
+Table "password_reset_tokens" {
+  "email" varchar(255) [pk, not null]
+  "token" varchar(255) [not null]
+  "created_at" timestamp [default: NULL]
+}
+
+Table "personal_access_tokens" {
+  "id" bigint [pk, not null, increment]
+  "tokenable_type" varchar(255) [not null]
+  "tokenable_id" bigint [not null]
+  "name" varchar(255) [not null]
+  "token" varchar(64) [not null]
+  "abilities" text
+  "last_used_at" timestamp [default: NULL]
+  "expires_at" timestamp [default: NULL]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+
+Indexes {
+  token [unique, name: "personal_access_tokens_token_unique"]
+  (tokenable_type, tokenable_id) [name: "personal_access_tokens_tokenable_type_tokenable_id_index"]
+}
+}
+
+Table "users" {
+  "id" bigint [pk, not null, increment]
+  "name" varchar(255) [not null]
+  "email" varchar(255) [not null]
+  "email_verified_at" timestamp [default: NULL]
+  "password" varchar(255) [not null]
+  "remember_token" varchar(100) [default: NULL]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+
+Indexes {
+  email [unique, name: "users_email_unique"]
+}
+}
+
+Table "transactions" {
+  "id" bigint [pk, not null, increment]
+  "uuid" varchar(255) [not null]
+  "payer_id" bigint [default: NULL]
+  "amount" int [default: NULL]
+  "due_date" datetime [default: NULL]
+  "vat" double [default: NULL]
+  "is_vat" tinyint(1) [not null]
+  "status" transactions_status_enum [not null]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+
+Indexes {
+  payer_id [name: "transactions_payer_id_foreign"]
+}
+}
+
+Table "invoices" {
+  "id" bigint [pk, not null, increment]
+  "uuid" varchar(255) [not null]
+  "invoice_number" varchar(255) [not null]
+  "payer_id" bigint [default: NULL]
+  "amount" int [default: NULL]
+  "transaction_id" bigint [default: NULL]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+
+Indexes {
+  payer_id [name: "invoices_payer_id_foreign"]
+  transaction_id [name: "invoices_transaction_id_foreign"]
+}
+}
+
+Table "invoice_receipts" {
+  "id" bigint [pk, not null, increment]
+  "uuid" varchar(255) [not null]
+  "invoice_receipt_number" varchar(255) [not null]
+  "payer_id" bigint [default: NULL]
+  "payer_name" varchar(255) [default: NULL]
+  "amount" int [default: NULL]
+  "invoice_id" bigint [default: NULL]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+
+Indexes {
+  payer_id [name: "invoice_receipts_payer_id_foreign"]
+  invoice_id [name: "invoice_receipts_invoice_id_foreign"]
+}
+}
+
+Ref "transactions_payer_id_foreign":"users"."id" < "transactions"."payer_id" [delete: set null]
+
+Ref "invoices_payer_id_foreign":"users"."id" < "invoices"."payer_id" [delete: set null]
+
+Ref "invoices_transaction_id_foreign":"transactions"."id" < "invoices"."transaction_id" [delete: set null]
+
+Ref "invoice_receipts_invoice_id_foreign":"invoices"."id" < "invoice_receipts"."invoice_id" [delete: set null]
+
+Ref "invoice_receipts_payer_id_foreign":"users"."id" < "invoice_receipts"."payer_id" [delete: set null]
